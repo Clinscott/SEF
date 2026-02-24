@@ -1,0 +1,12 @@
+{
+    "agentName": "Sef'Ori Juris",
+    "runtimeMode": "native",
+    "ollama": {
+        "baseUrl": "http://localhost:11434/v1",
+        "model": "llama3.2"
+    },
+    "paths": {
+        "soul": "./src/agent/soul.md",
+        "memory": "./src/agent/memory.md"
+    }
+}

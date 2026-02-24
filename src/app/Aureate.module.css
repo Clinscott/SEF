@@ -1,0 +1,512 @@
+.forgeContainer {
+  background-color: #1a1a1a;
+  background-image:
+    linear-gradient(to bottom, rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.9)),
+    url('https://www.transparenttextures.com/patterns/dark-leather.png');
+  /* Texture feel */
+  color: #f0f0f0;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid #333;
+  overflow: hidden;
+  /* For vignette */
+  position: relative;
+}
+
+.lowHealthVignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle, transparent 60%, rgba(139, 0, 0, 0.4) 100%);
+  z-index: 9999;
+  animation: flickerVignette 2s infinite alternate;
+}
+
+@keyframes flickerVignette {
+  0% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.screenShake {
+  animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+.aureateBorder {
+  border: 2px solid #d4af37;
+  position: relative;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.1);
+}
+
+/* Filigree corner accents using clip-path/masking or SVG */
+.aureateBorder::before,
+.aureateBorder::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d4af37;
+}
+
+.aureateBorder::before {
+  top: -5px;
+  left: -5px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.aureateBorder::after {
+  bottom: -5px;
+  right: -5px;
+  border-left: none;
+  border-top: none;
+}
+
+.verdictHeader {
+  color: #d4af37;
+  font-family: 'Cinzel', serif;
+  /* Falling back to serif if Cinzel not loaded */
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  border-bottom: 2px solid #d4af37;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.radiantGlow {
+  filter: drop-shadow(0 0 10px #00f2ff);
+}
+
+.liquidOrb {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid #d4af37;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.liquid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, #8b0000, #ff0000);
+  /* Default health liquid */
+  transition: height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.liquid::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 200%;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  animation: wave 2s infinite linear;
+}
+
+@keyframes wave {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.thpLiquid {
+  background: linear-gradient(to top, #004d4d, #00f2ff);
+  /* Radiant Blue for THP */
+}
+
+.statText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px black;
+  z-index: 10;
+}
+
+/* Resource Tracker Styles */
+.resourceIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+  transition: all 0.5s ease;
+}
+
+.glowingIcon {
+  color: #00f2ff;
+  filter: drop-shadow(0 0 5px #00f2ff);
+  animation: pulseRadiance 3s infinite ease-in-out;
+}
+
+.dimmedIcon {
+  color: #444;
+  filter: grayscale(1);
+}
+
+.sunIcon {
+  width: 30px;
+  height: 30px;
+  background: #d4af37;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  box-shadow: 0 0 10px #d4af37;
+  transition: all 0.5s ease;
+}
+
+.sunExtinguished {
+  background: #1a1a1a;
+  box-shadow: none;
+  border: 1px solid #333;
+}
+
+.spellPip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #d4af37;
+  margin: 0 3px;
+  transition: all 0.3s ease;
+}
+
+.spellPipActive {
+  background: #00f2ff;
+  box-shadow: 0 0 5px #00f2ff;
+}
+
+/* Animations */
+@keyframes pulseRadiance {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+.dyingFire {
+  animation: flickerFire 0.2s infinite;
+}
+
+@keyframes flickerFire {
+  0% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+
+  75% {
+    opacity: 0.6;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Parchment & Jurist Book Styles */
+.parchmentContainer {
+  background: #f4e4bc;
+  background-image: url('https://www.transparenttextures.com/patterns/papyros.png');
+  color: #2c1810;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(0, 0, 0, 0.2) inset;
+  font-family: 'Georgia', serif;
+  position: relative;
+  border: 1px solid #d2b48c;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.parchmentChapter {
+  border-bottom: 1px solid rgba(44, 24, 16, 0.2);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.parchmentChapter:hover {
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.chapterTitle {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  color: #5c3b1a;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.chapterQuote {
+  font-size: 0.85rem;
+  color: #5c3b1a;
+  margin-top: 0.3rem;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.chapterBenefit {
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  color: #4a3014;
+}
+
+.activeChapter {
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+  border: 1px solid #00f2ff;
+  background: rgba(0, 242, 255, 0.1);
+}
+
+.radiantText {
+  color: #008b8b;
+  text-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
+}
+
+.thump {
+  animation: thumpAnim 0.3s ease-out;
+}
+
+@keyframes thumpAnim {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.sealOfAmaunator {
+  width: 80px;
+  height: 80px;
+  background: #d4af37;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), 0 0 15px rgba(212, 175, 55, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 50;
+}
+
+.sealOfAmaunator:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4), 0 0 25px rgba(212, 175, 55, 0.7);
+}
+
+.sealOfAmaunator:active {
+  transform: scale(0.95);
+}
+
+.sealInner {
+  width: 65px;
+  height: 65px;
+  border: 2px solid #5c3b1a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sealInner::before {
+  content: '☀';
+  font-size: 2rem;
+  color: #5c3b1a;
+}
+
+/* Command Console Styles */
+.inputAnvil {
+  background: #111;
+  border: 1px solid #333;
+  color: #f0f0f0;
+  padding: 1rem;
+  width: 100%;
+  min-height: 100px;
+  font-family: inherit;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  resize: vertical;
+}
+
+.anvilButton {
+  background: #222;
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+  letter-spacing: 0.1rem;
+  box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
+}
+
+.anvilButton:hover {
+  background: #d4af37;
+  color: #111;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+.mechanicalCard {
+  background: #1a1a1a;
+  border: 2px solid #d4af37;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  animation: fadeInDown 0.5s forwards;
+  opacity: 0;
+}
+
+.blueText {
+  color: #00f2ff;
+  text-shadow: 0 0 5px rgba(0, 242, 255, 0.3);
+}
+
+.goldenSealButton {
+  background: #d4af37;
+  color: #111;
+  border: none;
+  padding: 1rem 2rem;
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+  margin-top: 2rem;
+  display: block;
+  width: 100%;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  animation: scaleIn 0.5s forwards;
+  opacity: 0;
+}
+
+.goldenSealButton:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 40px rgba(212, 175, 55, 1);
+}
+
+/* Cascading Delays */
+.cascade1 {
+  animation-delay: 0.2s;
+}
+
+.cascade2 {
+  animation-delay: 0.4s;
+}
+
+.cascade3 {
+  animation-delay: 0.6s;
+}
+
+.cascade4 {
+  animation-delay: 0.8s;
+}
+
+.cascade5 {
+  animation-delay: 1s;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
