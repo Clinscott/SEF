@@ -1,71 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Database from 'better-sqlite3';
+import { resolve } from 'path';
 import agentEvents from '@/lib/events';
-import { updateResource, updateVitals, updateSteedVitals, getCharacterState } from '@/lib/agent/state';
-
-// Strict validation mapping for LLM hallucinations
-const RESOURCE_MAP: Record<string, string> = {
-    'spell_slots_l1': 'spell_slots_l1',
-    'spell_slot_l1': 'spell_slots_l1',
-    'spell_slot_1': 'spell_slots_l1',
-    'l1_slot': 'spell_slots_l1',
-    'spell_slots_l2': 'spell_slots_l2',
-    'spell_slot_l2': 'spell_slots_l2',
-    'spell_slot_2': 'spell_slots_l2',
-    'l2_slot': 'spell_slots_l2',
-    'lay_on_hands': 'lay_on_hands',
-    'loh': 'lay_on_hands',
-    'channel_divinity': 'channel_divinity',
-    'cd': 'channel_divinity'
-};
 
 export async function POST(req: NextRequest) {
+    const dbPath = resolve(process.cwd(), 'juris_state.db');
+    const db = new Database(dbPath);
+
     try {
-        const { mechanics } = await req.json();
-        const state: any = getCharacterState();
+        const { resourceCost } = await req.json();
 
-        console.log('[Mutation] Initiating Commitment:', mechanics);
-
-        // 1. Handle Resource Costs (Smites, LoH, etc.)
-        if (mechanics.resourceCost) {
-            const rawType = mechanics.resourceCost.type?.toLowerCase();
-            const validatedId = RESOURCE_MAP[rawType];
-
-            if (validatedId) {
-                const amount = mechanics.resourceCost.amount || 0;
-                const resource = state.resources.find((r: any) => r.id === validatedId);
-
-                if (resource) {
-                    const newValue = Math.max(0, resource.current_value - amount);
-                    console.log(`[Mutation] Deducting ${amount} from ${validatedId}. New Value: ${newValue}`);
-                    updateResource(validatedId, newValue);
-                } else {
-                    console.warn(`[Mutation] Validated Resource ID ${validatedId} not found in database.`);
-                }
-            } else {
-                console.warn(`[Mutation] Unrecognized Resource Type hallucinated by LLM: ${rawType}`);
-            }
+        if (!resourceCost || !resourceCost.type || typeof resourceCost.amount !== 'number') {
+            return NextResponse.json({ error: 'Invalid resourceCost payload' }, { status: 400 });
         }
 
-        // 2. Handle HP Changes (Damage or Healing)
-        if (mechanics.hpChange) {
-            const { target, amount } = mechanics.hpChange;
-            if (target === 'sef') {
-                const newHp = Math.max(0, Math.min(state.vitals.max_hp, state.vitals.current_hp + amount));
-                console.log(`[Mutation] Sef HP Change: ${amount}. New HP: ${newHp}`);
-                updateVitals(newHp, state.vitals.temp_hp);
-            } else if (target === 'cinder') {
-                const newHp = Math.max(0, Math.min(state.steed.max_hp, state.steed.current_hp + amount));
-                console.log(`[Mutation] Cinder HP Change: ${amount}. New HP: ${newHp}`);
-                updateSteedVitals(newHp);
-            }
+        const { type, amount } = resourceCost;
+        let success = false;
+
+        // 1. Map and execute resource deduction
+        if (type === 'hp') {
+            // Update Vitals
+            const result = db.prepare('UPDATE state_vitals SET current_hp = current_hp - ? WHERE id = ?')
+                .run(amount, 'main');
+            success = result.changes > 0;
+        } else if (type.startsWith('spell_slots_') || type === 'lay_on_hands') {
+            // Update Resources
+            const result = db.prepare('UPDATE state_resources SET current_value = current_value - ? WHERE id = ?')
+                .run(amount, type);
+            success = result.changes > 0;
+        } else {
+            // Check for book benefits or other resources
+            const result = db.prepare('UPDATE state_book_benefits SET uses_remaining = uses_remaining - ? WHERE id = ? AND uses_remaining >= 0')
+                .run(amount, type);
+            success = result.changes > 0;
         }
 
-        // 3. Trigger Real-time UI Refresh via SSE
-        agentEvents.emit('stateUpdate');
+        if (success) {
+            // 2. Fire SSE Trigger
+            agentEvents.emit('state-update', { type, amount });
+            console.log(`[Mutation] Successfully deducted ${amount} from ${type}`);
+            return NextResponse.json({ success: true, resource: type, deducted: amount });
+        } else {
+            return NextResponse.json({
+                error: `Resource '${type}' not found or could not be updated.`,
+                success: false
+            }, { status: 404 });
+        }
 
-        return NextResponse.json({ success: true, message: "Verdict committed to database." });
     } catch (e: any) {
-        console.error('[Mutation Error]:', e);
+        console.error('Commit Action Route Error:', e);
         return NextResponse.json({ error: e.message }, { status: 500 });
+    } finally {
+        db.close();
     }
 }
