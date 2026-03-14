@@ -50,11 +50,17 @@ export async function ingestCharacterData() {
     const lohMax = parseInt(getFieldText('Limited Feature Max Usages 1')) || 20;
     const lohCurrent = parseInt(getFieldText('Limited Feature Used 1')) || 20;
 
+    // Fetch existing XP and Level to avoid overwriting with defaults
+    const existingXp = db.prepare('SELECT current_value, max_value FROM state_resources WHERE id = ?').get('xp') as any;
+    const existingLevel = db.prepare('SELECT current_value FROM state_resources WHERE id = ?').get('level') as any;
+
     const insertResource = db.prepare('INSERT OR REPLACE INTO state_resources (id, name, current_value, max_value, reset_type) VALUES (?, ?, ?, ?, ?)');
     insertResource.run('lay_on_hands', 'Lay on Hands', lohCurrent, lohMax, 'long_rest');
     insertResource.run('spell_slots_l1', 'L1 Spell Slots', 3, 3, 'long_rest');
     insertResource.run('spell_slots_l2', 'L2 Spell Slots', 2, 2, 'long_rest');
     insertResource.run('proficiency_bonus', 'Proficiency Bonus', 2, 2, 'none');
+    insertResource.run('xp', 'Experience Points', existingXp?.current_value || 2700, existingXp?.max_value || 6500, 'never');
+    insertResource.run('level', 'Paladin Level', existingLevel?.current_value || 4, 20, 'never');
 
     // --- Weapons ---
     const insertWeapon = db.prepare('INSERT OR REPLACE INTO ref_weapons (id, name, damage_die, mastery_id) VALUES (?, ?, ?, ?)');

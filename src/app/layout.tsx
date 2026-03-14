@@ -12,11 +12,11 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning={true}>
             <head>
                 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet" />
             </head>
-            <body style={{ margin: 0, padding: 0 }}>
+            <body style={{ margin: 0, padding: 0 }} suppressHydrationWarning={true}>
                 {children}
             </body>
         </html>

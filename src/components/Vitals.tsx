@@ -12,8 +12,9 @@ interface StatProps {
 }
 
 const HealthOrb: React.FC<StatProps> = ({ current, max, temp = 0, label, isSmall }) => {
-    const percentage = Math.min((current / max) * 100, 100);
-    const tempPercentage = Math.min((temp / max) * 100, 100);
+    const safeMax = max > 0 ? max : 1;
+    const percentage = Math.max(0, Math.min((current / safeMax) * 100, 100));
+    const tempPercentage = Math.max(0, Math.min((temp / safeMax) * 100, 100));
 
     return (
         <div className={styles.aureateBorder} style={{ display: 'inline-block', margin: '1rem', textAlign: 'center' }}>
@@ -31,8 +32,13 @@ const HealthOrb: React.FC<StatProps> = ({ current, max, temp = 0, label, isSmall
                         style={{ height: `${tempPercentage}%`, opacity: 0.6 }}
                     />
                 )}
-                <div className={styles.statText} style={{ fontSize: isSmall ? '1rem' : '1.5rem' }}>
-                    {current}{temp > 0 ? `+${temp}` : ''}
+                <div className={styles.statText} style={{ fontSize: isSmall ? '1rem' : '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                    <span>{current}</span>
+                    {temp > 0 && (
+                        <span style={{ fontSize: '0.6em', opacity: 0.8, color: '#00f2ff', marginLeft: '2px' }}>
+                            +{temp}
+                        </span>
+                    )}
                 </div>
             </div>
             <div style={{ marginTop: '0.5rem', color: '#d4af37', fontWeight: 'bold' }}>

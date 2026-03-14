@@ -51,9 +51,11 @@ const chapters: Chapter[] = [
 
 interface JuristBookProps {
     activeBenefitIds: string[];
+    lore?: { id: string; topic: string; memory_text: string; }[];
 }
 
-const JuristBook: React.FC<JuristBookProps> = ({ activeBenefitIds }) => {
+const JuristBook: React.FC<JuristBookProps> = ({ activeBenefitIds, lore = [] }) => {
+    const [view, setView] = useState<'dogma' | 'lore'>('dogma');
     const [selectedChapter, setSelectedChapter] = useState<string | null>(null);
     const [thumping, setThumping] = useState<string | null>(null);
     const [signed, setSigned] = useState(false);
@@ -62,59 +64,117 @@ const JuristBook: React.FC<JuristBookProps> = ({ activeBenefitIds }) => {
         setSelectedChapter(id === selectedChapter ? null : id);
         setThumping(id);
         setTimeout(() => setThumping(null), 300);
-        // Booming audio cue placeholder logic
         console.log(`[Audio] Booming verdict for ${id}`);
     };
 
     const handleSign = () => {
         setSigned(true);
-        setTimeout(() => setSigned(false), 2000); // Visual feedback only for now
+        setTimeout(() => setSigned(false), 2000);
         console.log("[Verdict] Signed with the Seal of Amaunator.");
     };
 
     return (
-        <div className={styles.parchmentContainer}>
-            <header style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div className={styles.parchmentContainer} style={{ minHeight: '500px', display: 'flex', flexDirection: 'column' }}>
+            <header style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                 <h2 className={styles.chapterTitle} style={{ fontSize: '1.8rem', borderBottom: '1px solid #5c3b1a', display: 'inline-block', paddingBottom: '0.5rem' }}>
-                    I AM THE LAW
+                    {view === 'dogma' ? 'I AM THE LAW' : 'THE FORGED CHRONICLE'}
                 </h2>
-                <div style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '0.5rem' }}>The Sacred Articles of Faith</div>
+                <div style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '0.5rem' }}>
+                    {view === 'dogma' ? 'The Sacred Articles of Faith' : 'Memories Struck Upon the Anvil'}
+                </div>
             </header>
 
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {chapters.map((ch) => {
-                    const isActive = activeBenefitIds.includes(ch.id);
-                    const isSelected = selectedChapter === ch.id;
+            {/* Toggle View */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                <button
+                    onClick={() => setView('dogma')}
+                    style={{
+                        background: view === 'dogma' ? '#5c3b1a' : 'transparent',
+                        color: view === 'dogma' ? '#f4e4bc' : '#5c3b1a',
+                        border: '1px solid #5c3b1a',
+                        padding: '0.5rem 1rem',
+                        fontFamily: 'Cinzel, serif',
+                        cursor: 'pointer',
+                        borderRadius: '3px',
+                        transition: 'all 0.3s ease'
+                    }}
+                >
+                    DOGMA
+                </button>
+                <button
+                    onClick={() => setView('lore')}
+                    style={{
+                        background: view === 'lore' ? '#5c3b1a' : 'transparent',
+                        color: view === 'lore' ? '#f4e4bc' : '#5c3b1a',
+                        border: '1px solid #5c3b1a',
+                        padding: '0.5rem 1rem',
+                        fontFamily: 'Cinzel, serif',
+                        cursor: 'pointer',
+                        borderRadius: '3px',
+                        transition: 'all 0.3s ease'
+                    }}
+                >
+                    LORE ({lore.length})
+                </button>
+            </div>
 
-                    return (
-                        <div
-                            key={ch.id}
-                            className={`${styles.parchmentChapter} ${isActive ? styles.activeChapter : ''} ${thumping === ch.id ? styles.thump : ''}`}
-                            onClick={() => handleChapterClick(ch.id)}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <h4 className={styles.chapterTitle}>
-                                    Chapter {ch.roman}: {ch.title}
-                                </h4>
-                                {isActive && (
-                                    <span className={styles.radiantText} style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
-                                        RADIANT ACTIVE
-                                    </span>
-                                )}
-                            </div>
+            <div style={{ flex: 1, overflowY: 'auto', paddingRight: '10px' }} className="scrollbar-thin scrollbar-thumb-[#5c3b1a]/30">
+                {view === 'dogma' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {chapters.map((ch) => {
+                            const isActive = activeBenefitIds.includes(ch.id);
+                            const isSelected = selectedChapter === ch.id;
 
-                            <div className={styles.chapterBenefit}>
-                                {ch.benefit}
-                            </div>
+                            return (
+                                <div
+                                    key={ch.id}
+                                    className={`${styles.parchmentChapter} ${isActive ? styles.activeChapter : ''} ${thumping === ch.id ? styles.thump : ''}`}
+                                    onClick={() => handleChapterClick(ch.id)}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <h4 className={styles.chapterTitle}>
+                                            Chapter {ch.roman}: {ch.title}
+                                        </h4>
+                                        {isActive && (
+                                            <span className={styles.radiantText} style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
+                                                RADIANT ACTIVE
+                                            </span>
+                                        )}
+                                    </div>
 
-                            {isSelected && (
-                                <div className={styles.chapterQuote} style={{ marginTop: '1rem', borderLeft: '2px solid #5c3b1a', paddingLeft: '1rem', animation: 'fadeIn 0.5s' }}>
-                                    "{ch.quote}"
+                                    <div className={styles.chapterBenefit}>
+                                        {ch.benefit}
+                                    </div>
+
+                                    {isSelected && (
+                                        <div className={styles.chapterQuote} style={{ marginTop: '1rem', borderLeft: '2px solid #5c3b1a', paddingLeft: '1rem', animation: 'fadeIn 0.5s' }}>
+                                            "{ch.quote}"
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {lore.length === 0 ? (
+                            <div style={{ textAlign: 'center', fontStyle: 'italic', opacity: 0.6, marginTop: '2rem' }}>
+                                The anvil is silent. No memories have been forged.
+                            </div>
+                        ) : (
+                            lore.map((item) => (
+                                <div key={item.id} style={{ borderBottom: '1px dashed rgba(92, 59, 26, 0.3)', paddingBottom: '1rem' }}>
+                                    <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '0.3rem' }}>
+                                        Topic: {item.topic}
+                                    </div>
+                                    <div style={{ fontFamily: 'Georgia, serif', lineHeight: 1.6, color: '#2c1810' }}>
+                                        {item.memory_text}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Seal of Amaunator */}

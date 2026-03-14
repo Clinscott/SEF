@@ -49,7 +49,7 @@ export interface TacticalResponse {
 }
 
 export function evaluateAction(scenario: string, dbPath?: string): TacticalResponse {
-    const resolvedPath = dbPath || resolve(process.cwd(), 'juris_state.db');
+    const resolvedPath = dbPath || resolve(process.cwd(), 'db', 'juris_state.db');
     const db = new Database(resolvedPath);
 
     try {

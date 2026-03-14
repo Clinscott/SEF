@@ -1,8 +1,10 @@
 import { EventEmitter } from 'events';
 
-class AgentEventEmitter extends EventEmitter { }
+const globalForEvents = globalThis as unknown as { agentEvents: EventEmitter };
 
-// Singleton instance to be used across the Next.js backend
-const agentEvents = new AgentEventEmitter();
+const agentEvents = globalForEvents.agentEvents || new EventEmitter();
+agentEvents.setMaxListeners(100); // Allow many SSE connections
+
+if (process.env.NODE_ENV !== 'production') globalForEvents.agentEvents = agentEvents;
 
 export default agentEvents;

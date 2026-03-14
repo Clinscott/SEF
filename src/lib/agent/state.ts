@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { resolve } from 'path';
 import agentEvents from '@/lib/events';
 
-const dbPath = resolve(process.cwd(), 'juris_state.db');
+const dbPath = resolve(process.cwd(), 'db', 'juris_state.db');
 
 export function getCharacterState() {
     const db = new Database(dbPath);
